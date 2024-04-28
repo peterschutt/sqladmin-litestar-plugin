@@ -44,7 +44,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        $HOME/.local/bin/poetry install --no-interaction --no-root
+        $HOME/.local/bin/poetry install --no-interaction
 
     - name: Run tests
       run: |
