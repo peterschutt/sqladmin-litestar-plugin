@@ -1,0 +1,33 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+      url: https://pypi.org/p/sqladmin-litestar-plugin
+    permissions:
+      id-token: write
+    steps:
+    - uses: actions/checkout@v3
+      name: Check out repository
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+    - name: Configure Poetry
+      run: |
+        $HOME/.local/bin/poetry config virtualenvs.create false
+    - name: Build package
+      run: |
+        $HOME/.local/bin/poetry build
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@v1
