@@ -4,11 +4,6 @@
 
 The `SQLAdminPlugin` integrates SQLAdmin with a Litestar application.
 
-## Features
-- Dynamic addition of model views to the admin panel.
-- Customizable admin panel settings including database connection, interface customization, and middleware integration.
-- Supports both synchronous and asynchronous SQLAlchemy engines.
-
 ## Installation
 
 To install the dependencies, run:
