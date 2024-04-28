@@ -98,6 +98,19 @@ class SQLAdminPlugin(InitPluginProtocol):
 
 
 class PathFixMiddleware:
+    """Middleware for fixing the path in scope for transition b/w Litestar and Starlette.
+
+    See: https://github.com/encode/starlette/issues/869
+
+    If a route is registered with `Mount` on a Starlette app, it needs a trailing slash. However,
+    paths registered with `Route` are not found if they have a trailing slash.
+
+    SQLAdmin uses `Mount` to register the admin app, and the admin app contains `Route`s.
+
+    This middleware fixes the path in the scope to ensure that the path is set correctly for the
+    admin app, depending on whether the request forwarded to the admin app is the base url of the
+    admin app or not.
+    """
     def __init__(self, app: st_types.ASGIApp, *, base_url: str) -> None:
         self.app = app
         self.base_url = base_url.rstrip("/")
