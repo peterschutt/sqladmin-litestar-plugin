@@ -16,6 +16,8 @@ pip install sqladmin-litestar-plugin
 
 To use the plugin, import the `SQLAdminPlugin` class and pass it to the `Litestar` application.
 
+By default, the plugin will create a new admin interface at `/admin`.
+
 ### Example
 
 ```python
