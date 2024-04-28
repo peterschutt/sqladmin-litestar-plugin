@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: CI
 
 on:
   push:
@@ -11,8 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11]
-
+        python-version:
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
     steps:
     - uses: actions/checkout@v3
       name: Check out repository
@@ -21,14 +25,6 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-
-    - name: Cache Poetry virtual environment
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pypoetry/virtualenvs
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}-${{ matrix.python-version }}
-        restore-keys: |
-          ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}-
 
     - name: Install Poetry
       run: |
@@ -40,7 +36,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        $HOME/.local/bin/poetry install --no-interaction --no-root
+        $HOME/.local/bin/poetry install --no-interaction
 
     - name: Run tests
       run: |
