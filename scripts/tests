@@ -1,0 +1,46 @@
+#!/bin/sh
+
+set -eu
+
+fn_codespell() {
+  echo "+++ Running codespell"
+  codespell src/ tests/ "$@"
+}
+
+fn_ruff () {
+  echo "+++ Running ruff"
+  ruff check src/ tests/ "$@" --fix
+}
+
+fn_fmt () {
+  echo "+++ Running ruff formatter"
+  ruff format src/ tests/ "$@"
+}
+
+fn_mypy () {
+  echo "+++ Running mypy"
+  mypy src/ tests/
+}
+
+fn_pytest () {
+  echo "+++ Running pytest"
+  pytest "$@"
+}
+
+fn_coverage () {
+  echo "+++ Running tests with coverage"
+  coverage run -m pytest
+  coverage report --fail-under=100
+}
+
+if [ $# -eq 0 ]; then
+  fn_codespell "$@"
+  fn_ruff "$@"
+  fn_fmt "$@"
+  fn_mypy "$@"
+  fn_coverage "$@"
+else
+  first=$(printf '%s' "$1" | tr "-" "_")
+  shift 1
+  "fn_${first}" "$@"
+fi

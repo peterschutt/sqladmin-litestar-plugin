@@ -1,0 +1,167 @@
+[tool.poetry]
+name = "sqladmin-litestar-plugin"
+version = "0.1.0"
+description = ""
+authors = ["Peter Schutt <peter.github@proton.me>"]
+readme = "README.md"
+packages = [
+    { include = "sqladmin_litestar_plugin", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+litestar = "*"
+sqladmin = "*"
+typing-extensions = "*"
+
+[tool.poetry.dev-dependencies]
+anyio = "*"
+codespell = "*"
+coverage = "*"
+mypy = "*"
+pytest = "*"
+pytest-mock = "*"
+ruff = "*"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.codespell]
+skip = "poetry.lock,.git.,.idea,.mypy_cache,.venv"
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "if TYPE_CHECKING",
+    "pragma: no cover",
+    "if __name__ == \"__main__\":",
+    "@overload",
+    "raise NotImplementedError",
+]
+
+[tool.coverage.run]
+branch = true
+omit = ["tests/*"]
+source = ["sqladmin_litestar_plugin"]
+
+[tool.mypy]
+enable_error_code = [
+    "ignore-without-code",
+    "redundant-expr",
+    "redundant-self",
+    "truthy-bool",
+    "truthy-iterable",
+    "unused-awaitable",
+]
+show_error_codes = true
+strict = true
+warn_unreachable = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_decorators = false
+
+[tool.pytest.ini_options]
+addopts = ["-ra", "--strict-config"]
+testpaths = ["tests/"]
+
+[tool.ruff]
+line-length = 100
+preview = true
+src = ["src", "tests"]
+target-version = "py38"
+
+[tool.ruff.lint]
+select = [
+    "A", # flake8-builtins
+    "ARG", # flake8-unused-arguments
+    "ASYNC", # flake8-async
+    "B", # flake8-bugbear
+    "BLE", # flake8-blind-except
+    "C4", # flake8-comprehensions
+    "C90", # mccabe
+    "D", # pydocstyle
+    "DTZ", # flake8-datetimez
+    "E", # pycodestyle errors
+    "EM", # flake8-errmsg
+    "ERA", # eradicate
+    "EXE", # flake8-executable
+    "F", # pyflakes
+    "FA", # flake8-future-annotations
+    "FBT", # flake8-boolean-trap
+    "FIX", # flake8-fix-me
+    "FLY", # flynt
+    "FURB", # refurb
+    "G", # flake8-logging-format
+    "I", # isort
+    "ICN", # flake8-import-conventions
+    "INP", # flake8-no-pep420
+    "ISC", # flake8-implicit-str-concat
+    "LOG", # flake8-logging
+    "N", # pep8-naming
+    "NPY", # NumPy-specific rules
+    "PERF", # perflint
+    "PGH", # pygrep-hooks
+    "PIE", # flake8-pie
+    "PLC", # pylint - convention
+    "PLE", # pylint - error
+    "PLR", # pylint - refactor
+    "PLW", # pylint - warning
+    "PT", # flake8-pytest-style
+    "PTH", # flake8-use-pathlib
+    "Q", # flake8-quotes
+    "RET", # flake8-return
+    "RSE", # flake8-raise
+    "RUF", # Ruff-specific rules
+    "S", # flake8-bandit
+    "SIM", # flake8-simplify
+    "SLF", # flake8-self
+    "SLOT", # flake8-slots
+    "T10", # flake8-debugger
+    "T20", # flake8-print
+    "TCH", # flake8-type-checking
+    "TD", # flake8-to-do
+    "TID", # flake8-tidy-imports
+    "TRY", # tryceratops
+    "UP", # pyupgrade
+    "W", # pycodestyle - warning
+    "YTT", # flake8-2020
+]
+
+ignore = [
+    "A003", # Class attribute `...` is shadowing a python builtin
+    "D100", # pydocstyle - missing docstring in public module
+    "D101", # pydocstyle - missing docstring in public class
+    "D104", # pydocstyle - missing docstring in public package
+    "D105", # pydocstyle - missing docstring in magic method
+    "D102", # pydocstyle - missing docstring in public method
+    "D103", # pydocstyle - missing docstring in public function
+    "D106", # pydocstyle - missing docstring in public nested class
+    "D107", # pydocstyle - missing docstring in __init__
+    "D203", # pydocstyle - 1 blank line required before class docstring
+    "D213", # pydocstyle - 1 blank line required between class docstring and its methods
+    "E501", # pycodestyle line too long, handled by black
+    "ISC001", # flake8-implicit-str-concat - implicit string concatenation
+    "UP040", # pyupgrade - use of TypeAlias instead of type keyword (mypy doesn't support it)
+]
+
+pydocstyle.convention = "google"
+
+pep8-naming.classmethod-decorators = [
+    "classmethod",
+]
+
+isort.known-first-party = ["sqladmin_litestar_plugin", "tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.*" = [
+    "D",
+    "S",
+    "DTZ001",
+]
