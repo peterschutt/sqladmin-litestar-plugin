@@ -107,10 +107,13 @@ class PathFixMiddleware:
 
     SQLAdmin uses `Mount` to register the admin app, and the admin app contains `Route`s.
 
+    Litestar forwards all paths without a leading forward slash, and with a trailing one.
+
     This middleware fixes the path in the scope to ensure that the path is set correctly for the
     admin app, depending on whether the request forwarded to the admin app is the base url of the
     admin app or not.
     """
+
     def __init__(self, app: st_types.ASGIApp, *, base_url: str) -> None:
         self.app = app
         self.base_url = base_url.rstrip("/")
@@ -133,8 +136,8 @@ class PathFixMiddleware:
             scope["raw_path"] = orig_raw
 
         async def send_wrapper(message: Any) -> None:
-            await send(message)
             reset_paths()
+            await send(message)
 
         try:
             await self.app(scope, receive, send_wrapper)
