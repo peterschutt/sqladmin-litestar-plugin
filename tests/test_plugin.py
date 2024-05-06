@@ -40,15 +40,16 @@ def test_views_added_to_admin_app(plugin: SQLAdminPlugin, monkeypatch: pytest.Mo
     mock.assert_called_once_with(plugin.views[0])
 
 
+@pytest.mark.parametrize("should_raise", [True, False])
 @pytest.mark.anyio()
 async def test_resets_app_in_scope(
-    plugin: SQLAdminPlugin, app: Litestar, monkeypatch: pytest.MonkeyPatch
+    *, should_raise: bool, plugin: SQLAdminPlugin, app: Litestar, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    mock = MagicMock()
+    mock = MagicMock(side_effect=RuntimeError if should_raise else None)
 
     async def fake_admin_app(scope: Scope, _: Receive, __: Send) -> None:  # noqa: RUF029
-        mock()
         scope["app"] = "admin"  # type: ignore[arg-type]
+        mock()
 
     monkeypatch.setattr(plugin, "app", fake_admin_app)
     handler = app.route_handler_method_map["/"]["asgi"].fn
