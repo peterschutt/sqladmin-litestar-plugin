@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Any
 
 import sqladmin
@@ -24,6 +25,8 @@ if TYPE_CHECKING:
     from starlette.middleware import Middleware
 
 __all__ = ("SQLAdminPlugin",)
+
+logger = logging.getLogger(__name__)
 
 
 class SQLAdminPlugin(InitPluginProtocol):
@@ -90,8 +93,9 @@ class SQLAdminPlugin(InitPluginProtocol):
             app = scope["app"]
             try:
                 await self.app(scope, receive, send)  # type: ignore[arg-type]
-            finally:
-                scope["app"] = app
+            except Exception:
+                logger.exception("Error raised from SQLAdmin app")
+            scope["app"] = app
 
         app_config.route_handlers.append(wrapped_app)
         return app_config
