@@ -97,7 +97,7 @@ class SQLAdminPlugin(InitPluginProtocol):
             by appending admin base_url stripped by the mounted route handler
             """
             app = scope["app"]
-            scope["path"] = self.admin.base_url + scope["path"]
+            scope["path"] = self.admin.base_url.rstrip("/") + scope["path"]
             try:
                 await self.app(scope, receive, send)  # type: ignore[arg-type]
             except Exception:
@@ -135,7 +135,7 @@ class PathFixMiddleware:
         orig_path = scope["path"]
         orig_raw = scope["raw_path"]
 
-        path = f"/{scope['path'].lstrip('/').rstrip('/')}"
+        path = f"/{scope['path'].rstrip('/').rstrip('/')}"
         if path == self.base_url:
             path = f"{path}/"
 
