@@ -135,7 +135,7 @@ class PathFixMiddleware:
         orig_path = scope["path"]
         orig_raw = scope["raw_path"]
 
-        path = f"/{scope['path'].rstrip('/').rstrip('/')}"
+        path = f"/{scope['path'].lstrip('/').rstrip('/')}"
         if path == self.base_url:
             path = f"{path}/"
 
