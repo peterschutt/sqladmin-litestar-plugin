@@ -82,15 +82,24 @@ class SQLAdminPlugin(InitPluginProtocol):
         for view in self.views:
             self.admin.add_view(view)
 
-        @asgi("/", is_mount=True)
+        mount_path = self.admin.base_url.rstrip("/")
+
+        @asgi(mount_path, is_mount=True)
         async def wrapped_app(scope: Scope, receive: Receive, send: Send) -> None:
             """Wraps the ASGI app to ensure the litestar app is set in the scope.
 
             Starlette overwrites the app in the scope, so we need to ensure it is set back to the
             litestar app, in case it is needed after the request is handled (e.g., for exception
             handling).
+
+            Wrapped app is mounted on admin.base_url to ensure that main app requests will not be
+            received by mounted app, including those that should raise a 404 exception
+
+            During the request handling, the function adjusts the request path
+            by appending admin base_url stripped by the mounted route handler
             """
             app = scope["app"]
+            scope["path"] = f"{mount_path}/{scope['path']}"
             try:
                 await self.app(scope, receive, send)  # type: ignore[arg-type]
             except Exception:
