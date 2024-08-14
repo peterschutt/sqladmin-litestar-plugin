@@ -99,12 +99,14 @@ class SQLAdminPlugin(InitPluginProtocol):
             by appending admin base_url stripped by the mounted route handler
             """
             app = scope["app"]
-            scope["path"] = f"{mount_path}/{scope['path']}"
+            path = scope["path"]
+            scope["path"] = f"{mount_path}{path}"
             try:
                 await self.app(scope, receive, send)  # type: ignore[arg-type]
             except Exception:
                 logger.exception("Error raised from SQLAdmin app")
             scope["app"] = app
+            scope["path"] = path
 
         app_config.route_handlers.append(wrapped_app)
         return app_config
