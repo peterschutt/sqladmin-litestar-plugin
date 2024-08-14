@@ -41,7 +41,7 @@ def test_views_added_to_admin_app(plugin: SQLAdminPlugin, monkeypatch: pytest.Mo
 
 
 @pytest.mark.parametrize("should_raise", [True, False])
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_resets_app_in_scope(
     *, should_raise: bool, plugin: SQLAdminPlugin, app: Litestar, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -52,8 +52,8 @@ async def test_resets_app_in_scope(
         mock()
 
     monkeypatch.setattr(plugin, "app", fake_admin_app)
-    handler = app.route_handler_method_map["/"]["asgi"].fn
-    fake_scope = {"app": app}
+    handler = app.route_handler_method_map["/admin"]["asgi"].fn
+    fake_scope = {"app": app, "path": "/"}
 
     await handler(fake_scope, MagicMock(), MagicMock())
     assert fake_scope["app"] == app
@@ -74,7 +74,7 @@ async def test_resets_app_in_scope(
         ("admin/other/", "/admin/other"),
     ],
 )
-@pytest.mark.anyio()
+@pytest.mark.anyio
 async def test_path_fix_middleware(path: str, expected: str, *, should_raise: bool) -> None:
     from starlette.types import Receive, Scope, Send  # noqa: PLC0415, F401
 
