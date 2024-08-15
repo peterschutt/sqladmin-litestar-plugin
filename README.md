@@ -73,3 +73,34 @@ The `SQLAdminPlugin` accepts the following arguments:
 
 Views are not added to the admin app until the Litestar application is instantiated, so you can append views to the
 `views` list until this point.
+
+## Use with Advanced-Alchemy Audit Base Variants
+
+Advanced-Alchemy (AA) provides variants of base models that include `created_at` and `updated_at` fields which enforce
+that `tzinfo` is set on the `datetime` instance passed through to SQLAlchemy.
+
+When a model is created via the SQLAdmin UI, the `created_at` and `updated_at` fields default to the current time in UTC,
+however, the `tzinfo` property of the `datetime` is not set.
+
+`sqladmin-litestar-plugin` provides a custom `ModelView` class that ensures the `tzinfo` property is set on `datetime`
+instances when the form field represents an AA `DateTimeUTC` field.
+
+Example:
+
+```python
+from __future__ import annotations
+
+from advanced_alchemy.base import UUIDAuditBase
+from sqlalchemy import Column, String
+
+from sqladmin_litestar_plugin.ext.advanced_alchemy import AuditModelView
+
+
+class Entity(UUIDAuditBase):
+    my_column = Column(String(10))
+
+
+class EntityAdmin(AuditModelView, model=Entity): ...
+```
+
+For a full working example, see the `examples/aa_audit_base` directory in this repo.
