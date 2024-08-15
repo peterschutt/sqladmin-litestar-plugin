@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any
 
 import sqladmin
@@ -11,7 +12,7 @@ from litestar.utils.empty import value_or_default
 from starlette.applications import Starlette
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterator, Sequence
 
     from litestar.config.app import AppConfig
     from litestar.types.asgi_types import Receive, Scope, Send
@@ -86,27 +87,12 @@ class SQLAdminPlugin(InitPluginProtocol):
 
         @asgi(mount_path, is_mount=True)
         async def wrapped_app(scope: Scope, receive: Receive, send: Send) -> None:
-            """Wraps the ASGI app to ensure the litestar app is set in the scope.
+            """Wrapper for the SQLAdmin app.
 
-            Starlette overwrites the app in the scope, so we need to ensure it is set back to the
-            litestar app, in case it is needed after the request is handled (e.g., for exception
-            handling).
-
-            Wrapped app is mounted on admin.base_url to ensure that main app requests will not be
-            received by mounted app, including those that should raise a 404 exception
-
-            During the request handling, the function adjusts the request path
-            by appending admin base_url stripped by the mounted route handler
+            Performs, and unwinds, the necessary scope modifications for the SQLAdmin app.
             """
-            app = scope["app"]
-            path = scope["path"]
-            scope["path"] = f"{mount_path}{path}"
-            try:
-                await self.app(scope, receive, send)  # type: ignore[arg-type]
-            except Exception:
-                logger.exception("Error raised from SQLAdmin app")
-            scope["app"] = app
-            scope["path"] = path
+            with patched_scope(scope, mount_path) as scope_:
+                await self.app(scope_, receive, send)  # type: ignore[arg-type]
 
         app_config.route_handlers.append(wrapped_app)
         return app_config
@@ -158,3 +144,38 @@ class PathFixMiddleware:
             await self.app(scope, receive, send_wrapper)
         finally:
             reset_paths()
+
+
+@contextmanager
+def patched_scope(scope: Scope, mount_path: str) -> Iterator[Scope]:
+    """Context manager to patch the scope for the SQLAdmin app.
+
+    When the Starlette app used by SQLAdmin receives the scope, it sets `scope["app"]` to the
+    Starlette app. This context manager patches the scope to ensure that the Litestar app is set
+    back in the scope after the request is handled.
+
+    We also adjust the request path by appending the admin base URL. As we mount the `asgi` handler
+    in Litestar to the admin base URL, Litestar strips that value from the path in scope. However,
+    we must configure the SQLAdmin base path to the same path as we have mounted the handler
+    so that any url generation in SQLAdmin will work correctly. That is, if we were to set the base
+    URL in the admin app to `/`, then any calls to `url_for` in SQLAdmin would generate URLs
+    without the base URL, which would not work correctly.
+
+    Args:
+        scope: The ASGI scope.
+        mount_path: The base URL for the admin app.
+
+    Yields:
+        The patched scope.
+    """
+    app = scope["app"]
+    path = scope["path"]
+    scope["path"] = f"{mount_path}{path}"
+
+    try:
+        yield scope
+    except Exception:
+        logger.exception("Error raised from SQLAdmin app")
+
+    scope["app"] = app
+    scope["path"] = path
