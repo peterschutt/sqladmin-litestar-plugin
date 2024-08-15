@@ -29,7 +29,7 @@ def app_fixture(plugin: SQLAdminPlugin) -> Litestar:
 
 def test_starlette_app_redirects_disabled(plugin: SQLAdminPlugin) -> None:
     assert plugin.admin.admin.router.redirect_slashes is False
-    assert plugin.app.router.redirect_slashes is False
+    assert plugin.starlette_app.router.redirect_slashes is False
 
 
 def test_views_added_to_admin_app(plugin: SQLAdminPlugin, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -51,7 +51,7 @@ async def test_resets_app_in_scope(
         scope["app"] = "admin"  # type: ignore[arg-type]
         mock()
 
-    monkeypatch.setattr(plugin, "app", fake_admin_app)
+    monkeypatch.setattr(plugin, "starlette_app", fake_admin_app)
     handler = app.route_handler_method_map["/admin"]["asgi"].fn
     fake_scope = {"app": app, "path": "/"}
 

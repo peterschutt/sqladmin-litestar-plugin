@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import logging
-from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import sqladmin
 from litestar import asgi
@@ -12,7 +11,7 @@ from litestar.utils.empty import value_or_default
 from starlette.applications import Starlette
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Sequence
 
     from litestar.config.app import AppConfig
     from litestar.types.asgi_types import Receive, Scope, Send
@@ -72,11 +71,11 @@ class SQLAdminPlugin(InitPluginProtocol):
             ]
             if value is not Empty
         }
-        self.app = Starlette()
-        self.admin = sqladmin.Admin(app=self.app, **admin_kwargs)  # type: ignore[arg-type]
-        self.app.add_middleware(PathFixMiddleware, base_url=self.admin.base_url)
+        self.starlette_app = Starlette()
+        self.admin = sqladmin.Admin(app=self.starlette_app, **admin_kwargs)  # type: ignore[arg-type]
+        self.starlette_app.add_middleware(PathFixMiddleware, base_url=self.admin.base_url)
         # disables redirecting based on absence/presence of trailing slashes
-        self.app.router.redirect_slashes = False
+        self.starlette_app.router.redirect_slashes = False
         self.admin.admin.router.redirect_slashes = False
 
     def on_app_init(self, app_config: AppConfig) -> AppConfig:
@@ -91,8 +90,10 @@ class SQLAdminPlugin(InitPluginProtocol):
 
             Performs, and unwinds, the necessary scope modifications for the SQLAdmin app.
             """
-            with patched_scope(scope, mount_path) as scope_:
-                await self.app(scope_, receive, send)  # type: ignore[arg-type]
+            try:
+                await self.starlette_app(_prepare_scope(scope, mount_path), receive, send)  # type: ignore[arg-type]
+            except Exception:
+                logger.exception("Error raised from SQLAdmin app")
 
         app_config.route_handlers.append(wrapped_app)
         return app_config
@@ -146,13 +147,12 @@ class PathFixMiddleware:
             reset_paths()
 
 
-@contextmanager
-def patched_scope(scope: Scope, mount_path: str) -> Iterator[Scope]:
+def _prepare_scope(scope: Scope, mount_path: str) -> Scope:
     """Context manager to patch the scope for the SQLAdmin app.
 
-    When the Starlette app used by SQLAdmin receives the scope, it sets `scope["app"]` to the
-    Starlette app. This context manager patches the scope to ensure that the Litestar app is set
-    back in the scope after the request is handled.
+    Returns a copy of the original scope so that any modification to the scope made by the Starlette
+    application does not affect components of the Litestar application that have already taken
+    a reference to it.
 
     We also adjust the request path by appending the admin base URL. As we mount the `asgi` handler
     in Litestar to the admin base URL, Litestar strips that value from the path in scope. However,
@@ -168,14 +168,6 @@ def patched_scope(scope: Scope, mount_path: str) -> Iterator[Scope]:
     Yields:
         The patched scope.
     """
-    app = scope["app"]
-    path = scope["path"]
-    scope["path"] = f"{mount_path}{path}"
-
-    try:
-        yield scope
-    except Exception:
-        logger.exception("Error raised from SQLAdmin app")
-
-    scope["app"] = app
-    scope["path"] = path
+    copied_scope = cast("Scope", dict(scope))
+    copied_scope["path"] = f"{mount_path}{scope['path']}"
+    return copied_scope
