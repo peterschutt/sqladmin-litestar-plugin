@@ -4,6 +4,10 @@
 
 The `SQLAdminPlugin` integrates SQLAdmin with a Litestar application.
 
+## Acknowledgements
+
+Thanks to [aminalaee](https://github.com/aminalaee) and all [contributors](https://github.com/aminalaee/sqladmin/graphs/contributors) for the excellent [SQLAdmin](https://github.com/aminalaee/sqladmin) project.
+
 ## Installation
 
 To install the dependencies, run:
@@ -69,8 +73,3 @@ The `SQLAdminPlugin` accepts the following arguments:
 
 Views are not added to the admin app until the Litestar application is instantiated, so you can append views to the
 `views` list until this point.
-
-## TO DO
-
-- An `AuthenticationBackend` that integrates with Litestar's session authentication.
- 
