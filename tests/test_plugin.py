@@ -12,11 +12,6 @@ if TYPE_CHECKING:
     from litestar.types.asgi_types import Receive, Scope, Send
 
 
-@pytest.fixture(scope="session")
-def anyio_backend() -> object:
-    return "asyncio"
-
-
 @pytest.fixture(name="plugin")
 def plugin_fixture() -> SQLAdminPlugin:
     return SQLAdminPlugin()
