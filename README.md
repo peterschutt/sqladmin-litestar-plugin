@@ -104,3 +104,6 @@ class EntityAdmin(AuditModelView, model=Entity): ...
 ```
 
 For a full working example, see the `examples/aa_audit_base` directory in this repo.
+
+The `AuditModelView` class should also be useful for models that don't depend on one of the AA audit model bases, but
+still use `DateTimeUTC` fields.
