@@ -4,22 +4,22 @@ set -eu
 
 fn_codespell() {
   echo "+++ Running codespell"
-  codespell src/ tests/ "$@"
+  codespell examples/ src/ tests/ "$@"
 }
 
 fn_ruff () {
   echo "+++ Running ruff"
-  ruff check src/ tests/ "$@" --fix
+  ruff check examples/ src/ tests/ "$@" --fix
 }
 
 fn_fmt () {
   echo "+++ Running ruff formatter"
-  ruff format src/ tests/ "$@"
+  ruff format examples/ src/ tests/ "$@"
 }
 
 fn_mypy () {
   echo "+++ Running mypy"
-  mypy src/ tests/
+  mypy examples/ src/ tests/
 }
 
 fn_pytest () {
