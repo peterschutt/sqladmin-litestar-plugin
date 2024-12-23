@@ -1294,13 +1294,13 @@ files = [
 
 [[package]]
 name = "types-wtforms"
-version = "3.2.1.20241025"
+version = "3.2.1.20241221"
 description = "Typing stubs for WTForms"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "types-WTForms-3.2.1.20241025.tar.gz", hash = "sha256:7763d296e9e4e0423ff52f851a35d6e4097715f3e88e65a256542f6f28018214"},
-    {file = "types_WTForms-3.2.1.20241025-py3-none-any.whl", hash = "sha256:0f525db273c0b667dada7fe509b444cfe0b87a5bfe87111424766f62b8cb838d"},
+    {file = "types_WTForms-3.2.1.20241221-py3-none-any.whl", hash = "sha256:6bb09795c9a730409e6a8a970cf00fa5dba3b268672fa3d945827d6c0873e6ee"},
+    {file = "types_wtforms-3.2.1.20241221.tar.gz", hash = "sha256:5d67caaa6e1eb70d25a91a2bc0594f6a82c83a114a488717ada1e846764aa2af"},
 ]
 
 [package.dependencies]
