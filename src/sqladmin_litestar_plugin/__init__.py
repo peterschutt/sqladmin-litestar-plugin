@@ -39,8 +39,10 @@ class SQLAdminPlugin(InitPluginProtocol):
         base_url: str | EmptyType = Empty,
         title: str | EmptyType = Empty,
         logo_url: str | EmptyType = Empty,
-        templates_dir: str | EmptyType = Empty,
+        favicon_url: str | EmptyType = Empty,
         middlewares: Sequence[Middleware] | EmptyType = Empty,
+        debug: bool = False,
+        templates_dir: str | EmptyType = Empty,
         authentication_backend: AuthenticationBackend | EmptyType = Empty,
     ) -> None:
         """Initializes the SQLAdminPlugin.
@@ -52,8 +54,10 @@ class SQLAdminPlugin(InitPluginProtocol):
             base_url: The base URL for the admin app.
             title: The title of the admin app.
             logo_url: The URL of the logo to display in the admin app.
-            templates_dir: The directory containing the Jinja2 templates for the admin app.
+            favicon_url: The URL of favicon to be displayed.
             middlewares: A sequence of Starlette middlewares to add to the admin app.
+            debug: Is the admin app debug mode.
+            templates_dir: The directory containing the Jinja2 templates for the admin app.
             authentication_backend: An authentication backend to use for the admin app.
         """
         self.views = list(value_or_default(views, []))
@@ -65,8 +69,10 @@ class SQLAdminPlugin(InitPluginProtocol):
                 ("base_url", base_url),
                 ("title", title),
                 ("logo_url", logo_url),
-                ("templates_dir", templates_dir),
+                ("favicon_url", favicon_url),
                 ("middlewares", middlewares),
+                ("debug", debug),
+                ("templates_dir", templates_dir),
                 ("authentication_backend", authentication_backend),
             ]
             if value is not Empty
