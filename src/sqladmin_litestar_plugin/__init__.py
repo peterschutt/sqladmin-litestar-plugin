@@ -9,6 +9,7 @@ from litestar.plugins.base import InitPluginProtocol
 from litestar.types.empty import Empty
 from litestar.utils.empty import value_or_default
 from starlette.applications import Starlette
+from .ext import patches
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -31,17 +32,17 @@ logger = logging.getLogger(__name__)
 
 class SQLAdminPlugin(InitPluginProtocol):
     def __init__(  # noqa: PLR0913
-        self,
-        *,
-        views: Sequence[type[ModelView]] | EmptyType = Empty,
-        engine: Engine | AsyncEngine | EmptyType = Empty,
-        sessionmaker: sessionmaker[Any] | EmptyType = Empty,
-        base_url: str | EmptyType = Empty,
-        title: str | EmptyType = Empty,
-        logo_url: str | EmptyType = Empty,
-        templates_dir: str | EmptyType = Empty,
-        middlewares: Sequence[Middleware] | EmptyType = Empty,
-        authentication_backend: AuthenticationBackend | EmptyType = Empty,
+            self,
+            *,
+            views: Sequence[type[ModelView]] | EmptyType = Empty,
+            engine: Engine | AsyncEngine | EmptyType = Empty,
+            sessionmaker: sessionmaker[Any] | EmptyType = Empty,
+            base_url: str | EmptyType = Empty,
+            title: str | EmptyType = Empty,
+            logo_url: str | EmptyType = Empty,
+            templates_dir: str | EmptyType = Empty,
+            middlewares: Sequence[Middleware] | EmptyType = Empty,
+            authentication_backend: AuthenticationBackend | EmptyType = Empty,
     ) -> None:
         """Initializes the SQLAdminPlugin.
 
@@ -121,7 +122,7 @@ class PathFixMiddleware:
         self.base_url = base_url.rstrip("/")
 
     async def __call__(
-        self, scope: st_types.Scope, receive: st_types.Receive, send: st_types.Send
+            self, scope: st_types.Scope, receive: st_types.Receive, send: st_types.Send
     ) -> None:
         orig_path = scope["path"]
         orig_raw = scope["raw_path"]
