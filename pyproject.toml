@@ -1,44 +1,61 @@
-[tool.poetry]
+[project]
 name = "sqladmin-litestar-plugin"
 version = "0.2.0"
 description = ""
-authors = ["Peter Schutt <peter.github@proton.me>"]
+authors = [{ name = "Peter Schutt", email = "peter.github@proton.me" }]
+requires-python = ">=3.9"
 readme = "README.md"
-packages = [
-    { include = "sqladmin_litestar_plugin", from = "src" },
+dependencies = [
+    "litestar",
+    "msgspec>=0.19.0",
+    "sqladmin",
+    "typing-extensions",
+    "wtforms",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-litestar = "*"
-sqladmin = "*"
-typing-extensions = "*"
-wtforms = "*"
+[dependency-groups]
+dev = [
+    "advanced-alchemy",
+    "anyio",
+    "codespell",
+    "coverage",
+    "mypy",
+    "pytest",
+    "pytest-cov>=7.0.0",
+    "pytest-mock",
+    "ruff",
+    "sqlalchemy",
+    "starlette",
+    "types-wtforms",
+]
+examples = [
+    "aiosqlite",
+    "uvicorn",
+]
 
-[tool.poetry.dev-dependencies]
-advanced-alchemy = "*"
-anyio = "*"
-codespell = "*"
-coverage = "*"
-mypy = "*"
-pytest = "*"
-pytest-mock = "*"
-ruff = "*"
-sqlalchemy = "*"
-starlette = "*"
-types-wtforms = "*"
+[tool.uv]
+default-groups = [
+    "dev",
+    "examples",
+]
 
-[tool.poetry.group.examples.dependencies]
-aiosqlite = "*"
-uvicorn = "*"
-
-[[tool.poetry.source]]
+[[tool.uv.index]]
 name = "PyPI"
-priority = "primary"
+url = "https://pypi.org/simple/"
+default = true
+
+[tool.hatch.build.targets.sdist]
+include = ["src/sqladmin_litestar_plugin"]
+
+[tool.hatch.build.targets.wheel]
+include = ["src/sqladmin_litestar_plugin"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src/sqladmin_litestar_plugin" = "sqladmin_litestar_plugin"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.codespell]
 skip = "poetry.lock,.git.,.idea,.mypy_cache,.venv"
@@ -76,7 +93,8 @@ warn_unused_configs = true
 module = "tests.*"
 disallow_untyped_decorators = false
 
-[tool.pytest.ini_options]
+[tool.pytest]
+minversion = "9.0"
 addopts = ["-ra", "--strict-config"]
 testpaths = ["tests/"]
 
